@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "Jobsity.FinancialChat.StockQuoteBot": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
