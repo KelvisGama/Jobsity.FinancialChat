@@ -1,4 +1,6 @@
-﻿using Jobsity.FinancialChat.Persistence.Context;
+﻿using Jobsity.FinancialChat.Application.Common.Interfaces.Repositories;
+using Jobsity.FinancialChat.Persistence.Context;
+using Jobsity.FinancialChat.Persistence.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,10 +26,12 @@ namespace Jobsity.FinancialChat.Persistence
                     options.UseSqlServer(
                         configuration.GetConnectionString("DefaultConnection")));
             }
-                       
+
 
             services.AddDefaultIdentity<IdentityUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddScoped<IMessageRepository, MessageRepository>();
 
             return services;
         }
