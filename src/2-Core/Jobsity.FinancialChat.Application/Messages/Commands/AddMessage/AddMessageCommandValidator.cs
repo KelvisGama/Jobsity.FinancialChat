@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Jobsity.FinancialChat.Domain.Enums;
 
-namespace Jobsity.FinancialChat.Application.Message.Commands.AddMessage
+namespace Jobsity.FinancialChat.Application.Messages.Commands.AddMessage
 {
     public class AddMessageCommandValidator : AbstractValidator<AddMessageCommand>
     {
