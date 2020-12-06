@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Jobsity.FinancialChat.WebUI.Areas.Identity;
 using Jobsity.FinancialChat.WebUI.Data;
+using Jobsity.FinancialChat.WebUI.Hubs;
 
 namespace Jobsity.FinancialChat.WebUI
 {
@@ -36,6 +37,7 @@ namespace Jobsity.FinancialChat.WebUI
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
@@ -66,10 +68,10 @@ namespace Jobsity.FinancialChat.WebUI
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
+            {                
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
+                endpoints.MapHub<ChatHub>(ChatHub.Url);
             });
         }
     }

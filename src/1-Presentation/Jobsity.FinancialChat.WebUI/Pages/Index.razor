@@ -1,7 +1,122 @@
 ﻿@page "/"
+@inject NavigationManager navigationManager
+@using Microsoft.AspNetCore.SignalR.Client;
+@using Jobsity.FinancialChat.WebUI.Models;
+@using Jobsity.FinancialChat.WebUI.Hubs;
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+<button type="button" @onclick="@Chat"><span class="oi oi-chat" aria-hidden="true"></span> Chat!</button>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+
+<div class="container clearfix">
+
+
+    <div class="chat">
+
+        <div class="chat-header clearfix">
+            
+        </div> <!-- end chat-header -->
+
+        <div class="chat-history">
+            <ul>
+                @foreach (var message in _messages)
+                {
+
+                    if (!message.IsFromCurrentUser)
+                    {
+                        <li class="clearfix">
+                            <div class="message-data align-right">
+                                <span class="message-data-time">@message.When.ToString("f")</span> &nbsp; &nbsp;
+                                <span class="message-data-name">@message.UserName</span>
+
+                            </div>
+                            <div class="message other-message float-right">
+                                @message.Body
+                            </div>
+                        </li>
+                    }
+                    else
+                    {
+                        <li>
+                            <div class="message-data">
+                                <span class="message-data-name">@message.UserName</span>
+                                <span class="message-data-time">@message.When.ToString("f")</span>
+                            </div>
+                            <div class="message my-message">
+                                @message.Body
+                            </div>
+                        </li>
+                    }
+
+                }
+            </ul>
+
+        </div> <!-- end chat-history -->
+
+        <div class="chat-message clearfix">
+            <textarea name="message-to-send" id="message-to-send" placeholder="Type your message" rows="3" @bind="@_newMessage"></textarea>
+
+            <button @onclick="@(() => SendAsync(_newMessage))">Send</button>
+
+        </div> <!-- end chat-message -->
+
+    </div> <!-- end chat -->
+
+</div> <!-- end container -->
+
+@code {
+
+    private string _username = "Kelvis";
+
+    // new message input
+    private string _newMessage;
+
+    private List<MessageDTO>
+    _messages = new List<MessageDTO>();
+
+    private HubConnection _chatHubConnection;
+
+
+
+    public async Task Chat()
+    {
+        try
+        {
+            _chatHubConnection = new HubConnectionBuilder()
+            .WithUrl($"{navigationManager.BaseUri.TrimEnd('/')}{ChatHub.Url}")
+            .Build();
+
+            _chatHubConnection.On<string>("SendMessageAsync", ReceiveMessage);
+
+            await _chatHubConnection.StartAsync();
+
+            await SendAsync($"[Notice] {_username} joined chat room.");
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"ERROR -> Failed to start chat client: {e.Message}");
+        }
+    }
+
+    private void ReceiveMessage(string message)
+    {
+        Console.WriteLine($"Received message: {message}");
+
+        _messages.Add(new MessageDTO(message, _username, true));
+
+        StateHasChanged();
+    }
+
+    private async Task SendAsync(string body)
+    {
+        if (!string.IsNullOrWhiteSpace(body))
+        {
+            var message = new MessageDTO(body, _username, true);
+            await _chatHubConnection.SendAsync("SendMessageAsync", body);
+
+            _newMessage = string.Empty;
+        }
+    }
+
+}
