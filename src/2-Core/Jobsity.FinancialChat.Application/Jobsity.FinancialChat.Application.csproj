@@ -16,4 +16,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Jobsity.FinancialChat.Domain\Jobsity.FinancialChat.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
