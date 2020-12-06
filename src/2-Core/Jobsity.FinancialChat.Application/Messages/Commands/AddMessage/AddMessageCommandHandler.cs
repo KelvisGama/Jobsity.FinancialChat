@@ -24,7 +24,7 @@ namespace Jobsity.FinancialChat.Application.Messages.Commands.AddMessage
 
             newMessage = await _messageRepository.CreateAsync(newMessage);
 
-            return newMessage.Id;
+            return newMessage.Id.ToString();
         }
     }
 }
