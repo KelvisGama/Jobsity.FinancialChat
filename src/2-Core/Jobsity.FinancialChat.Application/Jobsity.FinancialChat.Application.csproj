@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Common\Interfaces\Repositories\" />
     <Folder Include="Message\" />
   </ItemGroup>
 
