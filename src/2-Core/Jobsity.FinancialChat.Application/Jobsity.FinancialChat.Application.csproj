@@ -4,4 +4,12 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Common\Behaviours\" />
+    <Folder Include="Common\Exceptions\" />
+    <Folder Include="Common\Interfaces\Repositories\" />
+    <Folder Include="Common\Mappings\" />
+    <Folder Include="Message\" />
+  </ItemGroup>
+
 </Project>
