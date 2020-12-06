@@ -6,9 +6,9 @@ namespace Jobsity.FinancialChat.Application.Common.Interfaces.Repositories
     public interface IBaseRepository<TEntity> where TEntity : class
     {
         Task<TEntity> GetByIdAsync(string id);
-        Task<IEnumerable<TEntity>> GetPagedAsync(int pageIndex, int pageSize);
+        Task<IEnumerable<TEntity>> GetAllAsync();
         Task<TEntity> CreateAsync(TEntity obj);
-        Task UpdateAsync(string id, TEntity obj);
-        Task RemoveAsync(string id);
+        Task UpdateAsync(TEntity obj);
+        Task DeleteAsync(TEntity obj);
     }
 }
