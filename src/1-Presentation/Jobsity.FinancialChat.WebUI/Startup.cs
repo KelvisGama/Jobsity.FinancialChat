@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Jobsity.FinancialChat.WebUI.Areas.Identity;
 using Jobsity.FinancialChat.WebUI.Hubs;
+using Jobsity.FinancialChat.IoC;
 
 namespace Jobsity.FinancialChat.WebUI
 {
@@ -23,8 +24,8 @@ namespace Jobsity.FinancialChat.WebUI
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            
-            
+            NativeInjectorBootStrapper.RegisterServices(services, Configuration);
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
@@ -36,8 +37,7 @@ namespace Jobsity.FinancialChat.WebUI
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
+                app.UseDeveloperExceptionPage();                
             }
             else
             {
