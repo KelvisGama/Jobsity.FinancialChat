@@ -35,6 +35,7 @@ namespace Jobsity.FinancialChat.WebUI
                     }
 
                     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+                    await ApplicationDbContextSeed.SeedDefaultUserAsync(userManager);
                 }
                 catch (Exception ex)
                 {
