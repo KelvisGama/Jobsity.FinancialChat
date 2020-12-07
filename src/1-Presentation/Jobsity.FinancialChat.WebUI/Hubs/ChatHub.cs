@@ -1,4 +1,4 @@
-﻿using Jobsity.FinancialChat.WebUI.Models;
+﻿using Jobsity.FinancialChat.WebUI.Services;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Threading.Tasks;
@@ -8,9 +8,21 @@ namespace Jobsity.FinancialChat.WebUI.Hubs
     public class ChatHub : Hub
     {
         public const string Url = "/chatroom";
+        private readonly IMessageService _messageService;
 
-        public async Task SendMessageAsync(string message, string userName, DateTime when)
-            => await Clients.All.SendAsync("SendMessageAsync", message, userName, when);
+        public ChatHub(IMessageService messageService)
+        {
+            _messageService = messageService;
+        }
+
+        public async Task SendMessageAsync(string body, string userName, DateTime when)
+        {
+            // joined user message use an empty user name and should not be processed
+            if (!string.IsNullOrWhiteSpace(userName))
+                await _messageService.AddMessageAsync(body, userName, when);
+
+            await Clients.All.SendAsync("SendMessageAsync", body, userName, when);
+        }
 
         public override Task OnConnectedAsync()
         {

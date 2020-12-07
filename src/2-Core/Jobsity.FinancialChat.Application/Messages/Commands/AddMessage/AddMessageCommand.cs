@@ -14,11 +14,13 @@ namespace Jobsity.FinancialChat.Application.Messages.Commands.AddMessage
         public string Body { get; set; }
         public DateTime When { get; set; }
 
-        public AddMessageCommand(string userName, string body)
+        public AddMessageCommand() { }
+
+        public AddMessageCommand(string userName, string body, DateTime when)
         {
             UserName = userName;
             Body = body;
-            When = DateTime.Now;
+            When = when;
         }
 
         public void Mapping(Profile profile)

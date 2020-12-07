@@ -1,9 +1,8 @@
 ﻿@page "/"
 @attribute [Authorize]
-
+@inject IMessageService messageService
 @inject NavigationManager navigationManager
 @using Microsoft.AspNetCore.SignalR.Client;
-@using Jobsity.FinancialChat.WebUI.Models;
 @using Jobsity.FinancialChat.WebUI.Hubs;
 
 
@@ -18,7 +17,7 @@
 
         <div class="chat-history">
             <ul>
-                @foreach (var message in _messages)
+                @foreach (var message in _messages.OrderBy(m => m.When))
                 {
                     if (string.IsNullOrWhiteSpace(message.UserName))
                     {
@@ -28,7 +27,7 @@
                             </div>
                         </li>
                     }
-                    else if (message.IsFromCurrentUser)
+                    else if (message.UserName.Equals(_userName, StringComparison.InvariantCultureIgnoreCase))
                     {
                         <li class="clearfix">
                             <div class="message-data align-right">
@@ -74,7 +73,7 @@
 
     private string _userName;
     private string _newMessage;
-    private List<MessageDTO> _messages = new List<MessageDTO>();
+    private List<MessageDto> _messages = new List<MessageDto>();
     private HubConnection _chatHubConnection;
 
     [CascadingParameter]
@@ -82,6 +81,9 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+            _messages = (await messageService.GetMessagesAsync()).ToList();
+
         var user = (await AuthState).User;
 
         _userName = user.Identity.Name;
@@ -111,10 +113,9 @@
         }
     }
 
-    private void ReceiveMessage(string message, string userName, DateTime when)
-    {
-        var isFromCurrentUser = userName.Equals(_userName, StringComparison.InvariantCultureIgnoreCase);
-        _messages.Add(new MessageDTO(message, userName, isFromCurrentUser, when));
+    private void ReceiveMessage(string body, string userName, DateTime when)
+    {        
+        _messages.Add(new MessageDto(body, userName, when));
 
         StateHasChanged();
     }
