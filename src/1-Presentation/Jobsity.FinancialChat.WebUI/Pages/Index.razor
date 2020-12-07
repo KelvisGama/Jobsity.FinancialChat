@@ -15,7 +15,7 @@
 
         </div> <!-- end chat-header -->
 
-        <div class="chat-history">
+        <div id="scroller" class="chat-history">
             <ul>
                 @foreach (var message in _messages.OrderBy(m => m.When))
                 {
@@ -55,7 +55,6 @@
 
                 }
             </ul>
-
         </div> <!-- end chat-history -->
 
         <div class="chat-message clearfix">

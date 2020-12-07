@@ -224,6 +224,8 @@ app {
             margin-bottom: 30px;
             width: 90%;
             position: relative;
+            word-break: break-all;
+            word-wrap: break-word
         }
 
             .chat .chat-history .message:after {
@@ -331,7 +333,16 @@ ul {
     list-style-type: none;
 }
 
+#scroller * {
+    overflow-anchor: none;
+}
 
+#scroller::after {
+    content: '';
+    display: block;
+    overflow-anchor: auto;
+    height: 1px;
+}
 
 
 @media (max-width: 767.98px) {
