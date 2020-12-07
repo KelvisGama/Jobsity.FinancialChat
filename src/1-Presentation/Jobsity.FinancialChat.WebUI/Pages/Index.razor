@@ -1,12 +1,11 @@
 ﻿@page "/"
+@attribute [Authorize]
+
 @inject NavigationManager navigationManager
 @using Microsoft.AspNetCore.SignalR.Client;
 @using Jobsity.FinancialChat.WebUI.Models;
 @using Jobsity.FinancialChat.WebUI.Hubs;
-
-
-<button type="button" @onclick="@Chat"><span class="oi oi-chat" aria-hidden="true"></span> Chat!</button>
-
+ 
 
 <div class="container clearfix">
 
