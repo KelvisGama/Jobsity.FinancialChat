@@ -199,6 +199,20 @@ app {
         .chat .chat-history .message-data-time {
             color: #a8aab1;
             padding-left: 6px;
+            font-size: 12px;
+        }
+
+        .chat .chat-history .user-joined {
+            color: white;
+            line-height: 26px;
+            font-size: 12px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            width: 50%;
+            position: relative;
+            background: #adb5bd;
+            margin-right: auto;
+            margin-left: auto;
         }
 
         .chat .chat-history .message {

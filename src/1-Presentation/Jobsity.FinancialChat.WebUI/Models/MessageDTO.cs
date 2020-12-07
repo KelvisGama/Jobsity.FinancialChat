@@ -7,15 +7,14 @@ namespace Jobsity.FinancialChat.WebUI.Models
         public string UserName { get; set; }
         public string Body { get; set; }
         public bool IsFromCurrentUser { get; set; }
-
         public DateTime When { get; set; }
 
-        public MessageDTO(string body, string userName, bool isFromCurrentUser)
+        public MessageDTO(string body, string userName, bool isFromCurrentUser, DateTime when)
         {
             Body = body;
             UserName = userName;
             IsFromCurrentUser = isFromCurrentUser;
-            When = DateTime.Now;
+            When = when;
         }
     }
 }

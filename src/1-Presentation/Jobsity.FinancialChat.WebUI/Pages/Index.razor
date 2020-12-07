@@ -5,7 +5,7 @@
 @using Microsoft.AspNetCore.SignalR.Client;
 @using Jobsity.FinancialChat.WebUI.Models;
 @using Jobsity.FinancialChat.WebUI.Hubs;
- 
+
 
 <div class="container clearfix">
 
@@ -13,15 +13,22 @@
     <div class="chat">
 
         <div class="chat-header clearfix">
-            
+
         </div> <!-- end chat-header -->
 
         <div class="chat-history">
             <ul>
                 @foreach (var message in _messages)
                 {
-
-                    if (!message.IsFromCurrentUser)
+                    if (string.IsNullOrWhiteSpace(message.UserName))
+                    {
+                        <li class="clearfix">
+                            <div class="text-center user-joined">
+                                @message.Body
+                            </div>
+                        </li>
+                    }
+                    else if (message.IsFromCurrentUser)
                     {
                         <li class="clearfix">
                             <div class="message-data align-right">
@@ -55,7 +62,7 @@
         <div class="chat-message clearfix">
             <textarea name="message-to-send" id="message-to-send" placeholder="Type your message" rows="3" @bind="@_newMessage"></textarea>
 
-            <button @onclick="@(() => SendAsync(_newMessage))">Send</button>
+            <button @onclick="@(() => SendAsync(_newMessage, _userName))">Send</button>
 
         </div> <!-- end chat-message -->
 
@@ -65,19 +72,25 @@
 
 @code {
 
-    private string _username = "Kelvis";
-
-    // new message input
+    private string _userName;
     private string _newMessage;
-
-    private List<MessageDTO>
-    _messages = new List<MessageDTO>();
-
+    private List<MessageDTO> _messages = new List<MessageDTO>();
     private HubConnection _chatHubConnection;
 
+    [CascadingParameter]
+    protected Task<AuthenticationState> AuthState { get; set; }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var user = (await AuthState).User;
 
-    public async Task Chat()
+        _userName = user.Identity.Name;
+
+        if (_chatHubConnection is null)
+            await StartChatRoom();
+    }
+
+    private async Task StartChatRoom()
     {
         try
         {
@@ -85,34 +98,32 @@
             .WithUrl($"{navigationManager.BaseUri.TrimEnd('/')}{ChatHub.Url}")
             .Build();
 
-            _chatHubConnection.On<string>("SendMessageAsync", ReceiveMessage);
+            _chatHubConnection.On<string, string, DateTime>("SendMessageAsync", ReceiveMessage);
 
             await _chatHubConnection.StartAsync();
 
-            await SendAsync($"[Notice] {_username} joined chat room.");
+            await SendAsync($"{_userName} joined", "");
 
         }
         catch (Exception e)
         {
-            Console.WriteLine($"ERROR -> Failed to start chat client: {e.Message}");
+            Console.WriteLine($"ERROR -> Failed to start client: {e.Message}");
         }
     }
 
-    private void ReceiveMessage(string message)
+    private void ReceiveMessage(string message, string userName, DateTime when)
     {
-        Console.WriteLine($"Received message: {message}");
-
-        _messages.Add(new MessageDTO(message, _username, true));
+        var isFromCurrentUser = userName.Equals(_userName, StringComparison.InvariantCultureIgnoreCase);
+        _messages.Add(new MessageDTO(message, userName, isFromCurrentUser, when));
 
         StateHasChanged();
     }
 
-    private async Task SendAsync(string body)
+    private async Task SendAsync(string body, string userName)
     {
         if (!string.IsNullOrWhiteSpace(body))
         {
-            var message = new MessageDTO(body, _username, true);
-            await _chatHubConnection.SendAsync("SendMessageAsync", body);
+            await _chatHubConnection.SendAsync("SendMessageAsync", body, userName, DateTime.Now);
 
             _newMessage = string.Empty;
         }

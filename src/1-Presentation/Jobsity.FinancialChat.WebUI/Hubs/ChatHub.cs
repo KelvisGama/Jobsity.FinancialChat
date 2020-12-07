@@ -9,8 +9,8 @@ namespace Jobsity.FinancialChat.WebUI.Hubs
     {
         public const string Url = "/chatroom";
 
-        public async Task SendMessageAsync(string message)
-            => await Clients.All.SendAsync("SendMessageAsync", message);
+        public async Task SendMessageAsync(string message, string userName, DateTime when)
+            => await Clients.All.SendAsync("SendMessageAsync", message, userName, when);
 
         public override Task OnConnectedAsync()
         {
