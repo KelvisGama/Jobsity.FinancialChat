@@ -13,15 +13,24 @@ namespace Jobsity.FinancialChat.WebUI.Services
     {
         private IMediator _mediator;
         private IMapper _mapper;
+        private readonly IRabbitMqService _rabbitMqService;
 
-        public MessageService(IMediator mediator, IMapper mapper)
+        public MessageService(IMediator mediator, IMapper mapper, IRabbitMqService rabbitMqService)
         {
             _mediator = mediator;
             _mapper = mapper;
+            _rabbitMqService = rabbitMqService;
         }
 
         public async Task AddMessageAsync(string body, string userName, DateTime when)
         {
+            if (IsCommandMessage(body))
+            {
+                var stockName = body.Split("=")[1];
+                _rabbitMqService.PushMessageToWorker(stockName);
+                return;
+            }
+
             var command = new AddMessageCommand
             {
                 Body = body,
@@ -34,5 +43,8 @@ namespace Jobsity.FinancialChat.WebUI.Services
 
         public async Task<IEnumerable<MessageDto>> GetMessagesAsync()
             => await _mediator.Send(new GetLastFiftyMessagesQuery());
+
+        private bool IsCommandMessage(string message)
+            => message.Split("=")[0]?.Equals("/stock") ?? false;
     }
 }
