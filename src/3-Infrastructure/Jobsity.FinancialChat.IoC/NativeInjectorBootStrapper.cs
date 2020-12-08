@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Jobsity.FinancialChat.IoC
 {
-    public static class NativeInjectorBootStrapper
+    public static class NativeInjectorBootstrapper
     {
         public static void RegisterServices(IServiceCollection services, IConfiguration configuration)
         {

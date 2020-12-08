@@ -1,42 +1,37 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Jobsity.FinancialChat.Application.Common.Interfaces.ExternalApis;
+using Jobsity.FinancialChat.WebUI.Hubs;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace Jobsity.FinancialChat.StockQuoteBot
+namespace Jobsity.FinancialChat.WebUI.Services
 {
-    public class Worker : BackgroundService
+    public class RabbitMqService : IRabbitMqService
     {
-        private readonly ILogger<Worker> _logger;
+        private readonly ILogger<RabbitMqService> _logger;
         private readonly IConnection _connection;
         private readonly IModel _channel;
+        private readonly IHubContext<ChatHub> _hub;
         private readonly string _queueName;
         private const string ExchangeName = "exchange_stock_quotes";
-        private readonly IStooqApi _stooqApi;
 
-        public Worker(IConfiguration configuration, ILogger<Worker> logger, IStooqApi stooqApi)
+        public RabbitMqService(IConfiguration configuration, ILogger<RabbitMqService> logger, IHubContext<ChatHub> hub)
         {
             var hostName = configuration["RabbitMqHostName"];
-            _queueName = configuration["RabbitMqStockQuotesQueueName"];
+            _queueName = configuration["RabbitMqChatRoomQueueName"];
 
             var factory = new ConnectionFactory() { HostName = hostName };
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
             _logger = logger;
-            _stooqApi = stooqApi;
+            _hub = hub;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        public void ReceiveMessageFromWorker()
         {
-
             _channel.ExchangeDeclare(exchange: ExchangeName, type: "direct");
 
             _channel.QueueDeclare(queue: _queueName,
@@ -47,7 +42,7 @@ namespace Jobsity.FinancialChat.StockQuoteBot
 
             _channel.QueueBind(queue: _queueName,
                 exchange: ExchangeName,
-                routingKey: "stock_quotes_requests");
+                routingKey: "chat_room");
 
             _logger.LogInformation($"Waiting for messages.");
 
@@ -62,9 +57,7 @@ namespace Jobsity.FinancialChat.StockQuoteBot
 
                     _logger.LogInformation($"Received '{routingKey}':'{message}");
 
-                    var stockQuote = await _stooqApi.GetStockQuote(message);
-
-                    PushMessageToChatRoom(stockQuote);
+                    await _hub.Clients.All.SendAsync("SendMessageAsync", message, "Wall Street BOT", DateTime.Now);
 
                     _channel.BasicAck(ea.DeliveryTag, false);
                 }
@@ -78,10 +71,9 @@ namespace Jobsity.FinancialChat.StockQuoteBot
             _channel.BasicConsume(queue: _queueName,
                 autoAck: false,
                 consumer: consumer);
-
         }
 
-        private void PushMessageToChatRoom(string message)
+        public void PushMessageToWorker(string message)
         {
             using var channel = _connection.CreateModel();
 
@@ -89,11 +81,11 @@ namespace Jobsity.FinancialChat.StockQuoteBot
 
             var body = Encoding.UTF8.GetBytes(message);
             channel.BasicPublish(exchange: ExchangeName,
-                routingKey: "chat_room",
+                routingKey: "stock_quotes_requests",
                 basicProperties: null,
                 body: body);
 
-            _logger.LogInformation($"Sent '{message}' to chat room");
+            _logger.LogInformation($"Sent '{message}' to the worker");
         }
     }
 }
