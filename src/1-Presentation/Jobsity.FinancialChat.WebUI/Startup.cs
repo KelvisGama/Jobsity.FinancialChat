@@ -24,7 +24,7 @@ namespace Jobsity.FinancialChat.WebUI
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            NativeInjectorBootStrapper.RegisterServices(services, Configuration);
+            NativeInjectorBootstrapper.RegisterServices(services, Configuration);
 
             services.AddRazorPages();
             services.AddServerSideBlazor();
