@@ -24,6 +24,7 @@ namespace Jobsity.FinancialChat.Application.Messages.Commands.AddMessage
         }
 
         public void Mapping(Profile profile)
-            => profile.CreateMap<AddMessageCommand, Message>();
+            => profile.CreateMap<AddMessageCommand, Message>()
+                .ForMember(d => d.Id, c => c.Ignore());
     }
 }

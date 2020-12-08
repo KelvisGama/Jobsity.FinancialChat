@@ -13,4 +13,13 @@
     <PackageReference Include="coverlet.collector" Version="1.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Messages\Commands\AddMessage\" />
+    <Folder Include="Messages\Queries\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\2-Core\Jobsity.FinancialChat.Application\Jobsity.FinancialChat.Application.csproj" />
+  </ItemGroup>
+
 </Project>
