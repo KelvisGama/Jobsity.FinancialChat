@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Jobsity.FinancialChat.Application.Common.Interfaces.ExternalApis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,21 +16,22 @@ namespace Jobsity.FinancialChat.StockQuoteBot
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
-        private readonly ConnectionFactory _factory;
         private readonly IConnection _connection;
         private readonly IModel _channel;
         private readonly string _queueName;
         private const string ExchangeName = "exchange_stock_quotes";
+        private readonly IStooqApi _stooqApi;
 
-        public Worker(IConfiguration configuration, ILogger<Worker> logger)
+        public Worker(IConfiguration configuration, ILogger<Worker> logger, IStooqApi stooqApi)
         {
             var hostName = configuration["RabbitMqHostName"];
             _queueName = configuration["RabbitMqStockQuotesQueueName"];
 
-            _factory = new ConnectionFactory() { HostName = hostName };
-            _connection = _factory.CreateConnection();
+            var factory = new ConnectionFactory() { HostName = hostName };
+            _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
             _logger = logger;
+            _stooqApi = stooqApi;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -50,7 +52,7 @@ namespace Jobsity.FinancialChat.StockQuoteBot
             _logger.LogInformation($"Waiting for messages.");
 
             var consumer = new EventingBasicConsumer(_channel);
-            consumer.Received += (model, ea) =>
+            consumer.Received += async (model, ea) =>
             {
                 try
                 {
@@ -60,9 +62,9 @@ namespace Jobsity.FinancialChat.StockQuoteBot
 
                     _logger.LogInformation($"Received '{routingKey}':'{message}");
 
-                    //TODO call api and get the stock quote
+                    var stockQuote = await _stooqApi.GetStockQuote(message);
 
-                    PushMessageToChatRoom($"APPL.US quote is $93.42 per share");
+                    PushMessageToChatRoom(stockQuote);
 
                     _channel.BasicAck(ea.DeliveryTag, false);
                 }
