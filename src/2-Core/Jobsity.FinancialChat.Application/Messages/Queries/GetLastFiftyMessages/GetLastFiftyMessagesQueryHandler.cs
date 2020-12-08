@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Jobsity.FinancialChat.Application.Common.Interfaces.Repositories;
+using Jobsity.FinancialChat.Application.Messages.Models;
 using MediatR;
 using System.Collections.Generic;
 using System.Threading;

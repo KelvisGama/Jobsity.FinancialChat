@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Jobsity.FinancialChat.WebUI.Areas.Identity;
 using Jobsity.FinancialChat.WebUI.Hubs;
 using Jobsity.FinancialChat.IoC;
+using Jobsity.FinancialChat.WebUI.Services;
 
 namespace Jobsity.FinancialChat.WebUI
 {
@@ -29,6 +30,7 @@ namespace Jobsity.FinancialChat.WebUI
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
+            services.AddScoped<IMessageService, MessageService>();
             
         }
 
