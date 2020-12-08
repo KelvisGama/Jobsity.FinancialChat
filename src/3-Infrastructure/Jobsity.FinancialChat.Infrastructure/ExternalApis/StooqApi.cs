@@ -46,7 +46,7 @@ namespace Jobsity.FinancialChat.Infrastructure.ExternalApis
                 var records = reader.GetRecords<StockQuote>();
                 var stockQuote = records.First();
 
-                if (stockQuote.Close.Equals("N/A"))
+                if (stockQuote.Close.Equals("N/D"))
                 {
                     var msg = $"Stock {stockName} not found";
                     _logger.LogInformation($"StooqApi: {msg}");
