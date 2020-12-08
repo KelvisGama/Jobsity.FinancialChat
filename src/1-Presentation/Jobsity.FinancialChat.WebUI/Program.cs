@@ -17,7 +17,7 @@ namespace Jobsity.FinancialChat.WebUI
 {
     public class Program
     {
-        public async static Task Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
 
@@ -31,7 +31,7 @@ namespace Jobsity.FinancialChat.WebUI
 
                     if (context.Database.IsSqlServer())
                     {
-                        context.Database.Migrate();
+                       await context.Database.MigrateAsync();
                     }
 
                     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
