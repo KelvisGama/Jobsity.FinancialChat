@@ -26,7 +26,7 @@ namespace Jobsity.FinancialChat.Persistence.Context
             {
                 if (userManager.Users.All(u => u.UserName != defaultUser.UserName))
                 {
-                    await userManager.CreateAsync(defaultUser, "Jobity@123");
+                    await userManager.CreateAsync(defaultUser, "Jobsity@123");
                 }
             }
         }
