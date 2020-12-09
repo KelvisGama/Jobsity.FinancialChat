@@ -29,6 +29,9 @@ namespace Jobsity.FinancialChat.Infrastructure.ExternalApis
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(stockName))
+                    return "Oh no! You have sent an empty stock name";
+
                 _logger.LogInformation($"StooqApi: getting stock {stockName} quote");
 
                 var url = _configuration["StooqApiUrl"];
