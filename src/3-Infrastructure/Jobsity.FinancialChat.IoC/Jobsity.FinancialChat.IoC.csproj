@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\2-Core\Jobsity.FinancialChat.Application\Jobsity.FinancialChat.Application.csproj" />
+    <ProjectReference Include="..\Jobsity.FinancialChat.Infrastructure\Jobsity.FinancialChat.Infrastructure.csproj" />
+    <ProjectReference Include="..\Jobsity.FinancialChat.Persistence\Jobsity.FinancialChat.Persistence.csproj" />
+  </ItemGroup>
+
+</Project>

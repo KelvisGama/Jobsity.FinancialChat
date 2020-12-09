@@ -1,0 +1,132 @@
+﻿@page "/"
+@attribute [Authorize]
+@inject IMessageService messageService
+@inject NavigationManager navigationManager
+@using Microsoft.AspNetCore.SignalR.Client;
+@using Jobsity.FinancialChat.WebUI.Hubs;
+
+
+<div class="container clearfix">
+
+
+    <div class="chat">
+
+        <div class="chat-header clearfix">
+
+        </div> <!-- end chat-header -->
+
+        <div id="scroller" class="chat-history">
+            <ul>
+                @foreach (var message in _messages.OrderBy(m => m.When))
+                {
+                    if (string.IsNullOrWhiteSpace(message.UserName))
+                    {
+                        <li class="clearfix">
+                            <div class="text-center user-joined">
+                                @message.Body
+                            </div>
+                        </li>
+                    }
+                    else if (message.UserName.Equals(_userName, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        <li class="clearfix">
+                            <div class="message-data align-right">
+                                <span class="message-data-time">@message.When.ToString("f")</span> &nbsp; &nbsp;
+                                <span class="message-data-name">@message.UserName</span>
+
+                            </div>
+                            <div class="message other-message float-right">
+                                @message.Body
+                            </div>
+                        </li>
+                    }
+                    else
+                    {
+                        <li>
+                            <div class="message-data">
+                                <span class="message-data-name">@message.UserName</span>
+                                <span class="message-data-time">@message.When.ToString("f")</span>
+                            </div>
+                            <div class="message my-message">
+                                @message.Body
+                            </div>
+                        </li>
+                    }
+
+                }
+            </ul>
+        </div> <!-- end chat-history -->
+
+        <div class="chat-message clearfix">
+            <textarea name="message-to-send" id="message-to-send" placeholder="Type your message" rows="3" @bind="@_newMessage"></textarea>
+
+            <button @onclick="@(() => SendAsync(_newMessage, _userName))">Send</button>
+
+        </div> <!-- end chat-message -->
+
+    </div> <!-- end chat -->
+
+</div> <!-- end container -->
+
+@code {
+
+    private string _userName;
+    private string _newMessage;
+    private List<MessageDto> _messages = new List<MessageDto>();
+    private HubConnection _chatHubConnection;
+
+    [CascadingParameter]
+    protected Task<AuthenticationState> AuthState { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            _messages = (await messageService.GetMessagesAsync()).ToList();
+
+        var user = (await AuthState).User;
+
+        _userName = user.Identity.Name;
+
+        if (_chatHubConnection is null)
+            await StartChatRoom();
+    }
+
+    private async Task StartChatRoom()
+    {
+        try
+        {
+            _chatHubConnection = new HubConnectionBuilder()
+            .WithUrl($"{navigationManager.BaseUri.TrimEnd('/')}{ChatHub.Url}")
+            .Build();
+
+            _chatHubConnection.On<string, string, DateTime>("SendMessageAsync", ReceiveMessage);
+
+            await _chatHubConnection.StartAsync();
+
+            await SendAsync($"{_userName} joined", "");
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"ERROR -> Failed to start client: {e.Message}");
+        }
+    }
+
+    private void ReceiveMessage(string body, string userName, DateTime when)
+    {        
+        _messages.Add(new MessageDto(body, userName, when));
+
+        StateHasChanged();
+    }
+
+    private async Task SendAsync(string body, string userName)
+    {
+        if (!string.IsNullOrWhiteSpace(body))
+        {
+            await _chatHubConnection.SendAsync("SendMessageAsync", body, userName, DateTime.Now);
+
+            _newMessage = string.Empty;
+        }
+    }
+
+}
