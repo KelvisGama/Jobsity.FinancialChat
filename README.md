@@ -78,11 +78,11 @@ Structure:
 ```
 /Jobsity.FinancialChat.sln 
 |--- src  
-|	 |--- 1-Presentation  
-|	 |	  |--- Jobsity.FinancialChat.StockQuoteBot  
-| 	 |	  |--- Jobsity.FinancialChat.WebUI  
-|	 |--- 2-Core  
-| 	 |	  |--- Jobsity.FinancialChat.Application  
+|    |--- 1-Presentation  
+|    |    |--- Jobsity.FinancialChat.StockQuoteBot  
+|    |    |--- Jobsity.FinancialChat.WebUI  
+|    |--- 2-Core  
+|    |    |--- Jobsity.FinancialChat.Application  
 |    |    |--- Jobsity.FinancialChat.Domain  
 |    |--- 3-Infrastructure 
 |    |    |--- Jobsity.FinancialChat.Infrastructure  
