@@ -22,10 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Messages\Commands\AddMessage\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\src\2-Core\Jobsity.FinancialChat.Application\Jobsity.FinancialChat.Application.csproj" />
   </ItemGroup>
 
