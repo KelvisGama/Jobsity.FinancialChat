@@ -1,8 +1,11 @@
-﻿using System.Linq;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Jobsity.FinancialChat.Application.Common.Interfaces.Repositories;
+using Jobsity.FinancialChat.Application.Messages.Models;
 using Jobsity.FinancialChat.Application.Messages.Queries.GetLastFiftyMessages;
 using Jobsity.FinancialChat.Domain.Entities;
 using Moq;
@@ -32,7 +35,9 @@ namespace Jobsity.FinancialChat.Application.Tests.Messages.Queries.GetLastFiftyM
             var result = await handler.Handle(new GetLastFiftyMessagesQuery(), CancellationToken.None);
 
             // assert
-            result.Count().ShouldBeLessThanOrEqualTo(50);
+            var dtos = result.ToList();
+            dtos.Count().ShouldBeLessThanOrEqualTo(50);
+            dtos.ShouldBeOfType(typeof(List<MessageDto>));
         }
 
         private Mock<IMessageRepository> GetMessageRepositoryMock(int count)
